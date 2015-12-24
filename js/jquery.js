@@ -2776,13 +2776,13 @@ var rootjQuery,
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
 	init = jQuery.fn.init = function( selector, context ) {
-    console.log(this);
 		var match, elem;
 
 		// HANDLE: $(""), $(null), $(undefined), $(false)
 		if ( !selector ) {
 			return this;
 		}
+    // console.log(selector);
 
 		// Handle HTML strings
 		if ( typeof selector === "string" ) {
@@ -2855,8 +2855,10 @@ var rootjQuery,
 			// HANDLE: $(expr, context)
 			// (which is just equivalent to: $(context).find(expr)
 			} else {
+
 				return this.constructor( context ).find( selector );
 			}
+
 
 		// HANDLE: $(DOMElement)
 		} else if ( selector.nodeType ) {
@@ -2868,6 +2870,7 @@ var rootjQuery,
 		// Shortcut for document ready
 		} else if ( jQuery.isFunction( selector ) ) {
 			return typeof rootjQuery.ready !== "undefined" ?
+
 				rootjQuery.ready( selector ) :
 				// Execute immediately if ready is not present
 				selector( jQuery );
@@ -2878,7 +2881,6 @@ var rootjQuery,
 			this.context = selector.context;
 		}
 
-    console.log(this);
 		return jQuery.makeArray( selector, this );
 	};
 

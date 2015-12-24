@@ -1,13 +1,13 @@
 (function() {
 
   function extendC(subclass, superclass) {
-      function Dummy(){}
-      Dummy.prototype = superclass.prototype;
-      subclass.prototype = new Dummy();
-      subclass.prototype.constructor = subclass;
-      subclass.superclass = superclass;
-      subclass.superproto = superclass.prototype;
-    }
+    function Dummy() {}
+    Dummy.prototype = superclass.prototype;
+    subclass.prototype = new Dummy();
+    subclass.prototype.constructor = subclass;
+    subclass.superclass = superclass;
+    subclass.superproto = superclass.prototype;
+  }
   var f, C = {};
 
   C.deepExtend = function(out) {
@@ -63,30 +63,24 @@
     return parseHTML(h);
   };
 
-  C.e = function(s){
-    var sf = new domNode(s);
-
-    // extendC(person, sf);
-    // console.log(person);
-    // person.push(new domNode(s));
-    // person[0] = new domNode(s);
-    return person;
+  C.e = function(s) {
+    return ppp(s);
   };
 
-  function isNode(o){
-      return (
-        typeof Node === "object" ? o instanceof Node :
-        o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName==="string"
-      );
-    }
-
-    //Returns true if it is a DOM element
-    function isElement(o){
-      return (
-        typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
-        o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+  function isNode(o) {
+    return (
+      typeof Node === "object" ? o instanceof Node :
+      o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName === "string"
     );
-    }
+  }
+
+  //Returns true if it is a DOM element
+  function isElement(o) {
+    return (
+      typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+      o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName === "string"
+    );
+  }
 
   function domNodeWindow(w) {
     this._element = window;
@@ -113,128 +107,193 @@
   };
   var deletedIds = [];
 
-var slice = deletedIds.slice;
+  var slice = deletedIds.slice;
 
-var concat = deletedIds.concat;
+  var concat = deletedIds.concat;
 
-var push = deletedIds.push;
+  var push = deletedIds.push;
 
-var indexOf = deletedIds.indexOf;
+  var indexOf = deletedIds.indexOf;
 
-var class2type = {};
+  var class2type = {};
 
-var toString = class2type.toString;
+  var toString = class2type.toString;
 
-var hasOwn = class2type.hasOwnProperty;
+  var hasOwn = class2type.hasOwnProperty;
 
-var support = {};
+  var support = {};
 
-
-  var ppp = function(selector){
-    return ppp.fn.init(selector);
+  var ppp = function(selector) {
+    return ppp.pp.init(selector);
   };
 
-  f = ppp.fn = ppp.prototype = {
+  f = ppp.pp = ppp.prototype = {
 
-	// The current version of ppp being used
-	ppp: "1234",
+    // The current version of ppp being used
+    ppp: "1234",
 
-	constructor: ppp,
+    constructor: ppp,
 
-	// Start with an empty selector
-	selector: "",
+    // Start with an empty selector
+    selector: "",
 
-	// The default length of a ppp object is 0
-	length: 0,
+    // The default length of a ppp object is 0
+    length: 0,
 
-	toArray: function() {
-		return slice.call( this );
-	},
+    toArray: function() {
+      return slice.call(this);
+    },
 
-	// Get the Nth element in the matched element set OR
-	// Get the whole matched element set as a clean array
-	get: function( num ) {
-		return num != null ?
+    // Get the Nth element in the matched element set OR
+    // Get the whole matched element set as a clean array
+    get: function(num) {
+      return num != null ?
 
-			// Return just the one element from the set
-			( num < 0 ? this[ num + this.length ] : this[ num ] ) :
+        // Return just the one element from the set
+        (num < 0 ? this[num + this.length] : this[num]) :
 
-			// Return all the elements in a clean array
-			slice.call( this );
-	},
+        // Return all the elements in a clean array
+        slice.call(this);
+    },
 
-	// Take an array of elements and push it onto the stack
-	// (returning the new matched element set)
-	pushStack: function( elems ) {
+    // Take an array of elements and push it onto the stack
+    // (returning the new matched element set)
+    pushStack: function(elems) {
 
-		// Build a new ppp matched element set
-		var ret = ppp.merge( this.constructor(), elems );
+      // Build a new ppp matched element set
+      var ret = $.merge(this.constructor(), elems);
 
-		// Add the old object onto the stack (as a reference)
-		ret.prevObject = this;
-		ret.context = this.context;
+      // Add the old object onto the stack (as a reference)
+      ret.prevObject = this;
+      ret.context = this.context;
 
-		// Return the newly-formed element set
+      // Return the newly-formed element set
+      return ret;
+    },
+
+    // Execute a callback for every element in the matched set.
+    // (You can seed the arguments with an array of args, but this is
+    // only used internally.)
+    each: function(callback, args) {
+      return ppp.each(this, callback, args);
+    },
+
+    map: function(callback) {
+      return this.pushStack(ppp.map(this, function(elem, i) {
+        return callback.call(elem, i, elem);
+      }));
+    },
+
+    slice: function() {
+      return this.pushStack(slice.apply(this, arguments));
+    },
+
+    first: function() {
+      return this.eq(0);
+    },
+
+    last: function() {
+      return this.eq(-1);
+    },
+
+    eq: function(i) {
+      var len = this.length,
+        j = +i + (i < 0 ? len : 0);
+      return this.pushStack(j >= 0 && j < len ? [this[j]] : []);
+    },
+
+    end: function() {
+      return this.prevObject || this.constructor(null);
+    },
+
+    // For internal use only.
+    // Behaves like an Array's method, not like a ppp method.
+    push: push,
+    sort: deletedIds.sort,
+    splice: deletedIds.splice
+  };
+
+  ppp.pp.init = function(selector, context) {
+    var match, elem;
+
+		// HANDLE: $(""), $(null), $(undefined), $(false)
+		if ( !selector ) {
+			return this;
+		}
+
+		// Handle HTML strings
+		if ( typeof selector === "string" ) {
+			if ( !context || context.ppp ) {
+				return ( context || rootjQuery ).find( selector );
+
+			// HANDLE: $(expr, context)
+			// (which is just equivalent to: $(context).find(expr)
+			} else {
+
+				return this.constructor( context ).find( selector );
+			}
+
+
+		// HANDLE: $(DOMElement)
+		} else if ( selector.nodeType ) {
+			this.context = this[0] = selector;
+			this.length = 1;
+			return this;
+
+		// HANDLE: $(function)
+		// Shortcut for document ready
+		} else if ( jQuery.isFunction( selector ) ) {
+			return typeof rootjQuery.ready !== "undefined" ?
+
+				rootjQuery.ready( selector ) :
+				// Execute immediately if ready is not present
+				selector( ppp );
+		}
+
+		if ( selector.selector !== undefined ) {
+			this.selector = selector.selector;
+			this.context = selector.context;
+		}
+
+		return this.makeArray( selector, this );
+  };
+
+
+  var rootjQuery = ppp( document );
+
+  f.find = function(selector) {
+    var i,
+			ret = [],
+			self = this,
+			len = self.length;
+
+		if ( typeof selector !== "string" ) {
+			return this.pushStack( ppp( selector ).filter(function() {
+				for ( i = 0; i < len; i++ ) {
+					if ( ppp.contains( self[ i ], this ) ) {
+						return true;
+					}
+				}
+			}) );
+		}
+
+		for ( i = 0; i < len; i++ ) {
+      // console.log(selector);
+			ret = document.querySelectorAll(selector);
+		}
+
+		// Needed because $( selector, context ) becomes $( context ).find( selector )
+		ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
+		ret.selector = this.selector ? this.selector + " " + selector : selector;
 		return ret;
-	},
 
-	// Execute a callback for every element in the matched set.
-	// (You can seed the arguments with an array of args, but this is
-	// only used internally.)
-	each: function( callback, args ) {
-		return ppp.each( this, callback, args );
-	},
 
-	map: function( callback ) {
-		return this.pushStack( ppp.map(this, function( elem, i ) {
-			return callback.call( elem, i, elem );
-		}));
-	},
-
-	slice: function() {
-		return this.pushStack( slice.apply( this, arguments ) );
-	},
-
-	first: function() {
-		return this.eq( 0 );
-	},
-
-	last: function() {
-		return this.eq( -1 );
-	},
-
-	eq: function( i ) {
-		var len = this.length,
-			j = +i + ( i < 0 ? len : 0 );
-		return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
-	},
-
-	end: function() {
-		return this.prevObject || this.constructor(null);
-	},
-
-	// For internal use only.
-	// Behaves like an Array's method, not like a ppp method.
-	push: push,
-	sort: deletedIds.sort,
-	splice: deletedIds.splice
-};
-
-  ppp.fn.init = function(selector){
-    return this;
-  }
-  f.queryBySelector = function(selector) {
-    return document.querySelectorAll(selector);
-    // // ppp
-    // // $('selector');
-
-    // // Native
-    // var a = document.querySelectorAll(selector), tr = [];
-    // console.log(a);
-    // for(var i = 0, il = a.length; i < il; ++i){
-      // tr.push(a[i]);
-    // }
-    // return a;
+     // var a = document.querySelectorAll(selector),
+        // tr;
+      // for (var i = 0, il = a.length; i < il; ++i) {
+        // tr = this.pushStack(a);
+      // }
+      // return tr;
   };
 
   f.queryByClass = function(cl) {
@@ -413,11 +472,13 @@ var support = {};
   };
 
   f.addClass = function(className) {
+    console.log(this);
+    for (var i = 0, il = this.length; i < il; ++i) {
+      this[i].classList.add(className);
+    }
     // ppp
     // $el.addClass(className);
 
-    // Native
-    this._element.classList.add(className);
     return this;
   };
 
@@ -582,7 +643,7 @@ var support = {};
     this._element.addEventListener(eventName, eventHandler);
   };
 
-  f.on = function(eventName, eventHandler) {
+  f.off = function(eventName, eventHandler) {
     // ppp
     // $el.off(eventName, eventHandler);
 
@@ -674,9 +735,9 @@ var support = {};
     return this;
   };
 
-  f.find = function(selector) {
-    return this._element.querySelectorAll(selector);
-  };
+  // f.find = function(selector) {
+    // return this._element.querySelectorAll(selector);
+  // };
 
   f.outerHTML = function() {
     return this._element.outerHTML
@@ -743,28 +804,32 @@ var support = {};
     }
   };
 
-  f.test = function(){
-    console.log("sdad");
-  };
+  f.makeArray = function( arr, results ) {
+		var ret = results || [];
+		if ( arr != null ) {
+			if ( isArraylike( Object(arr) ) ) {
+				ppp.merge( ret,
+					typeof arr === "string" ?
+					[ arr ] : arr
+				);
+			} else {
+				push.call( ret, arr );
+			}
+		}
+
+		return ret;
+	},
 
   this.onload = function() {
     // console.log( document.getElementsByTagName( 'div' ));
     // var vs = C.e(".content_section_text");
 
-    console.log($(".content_section_text"));
+    console.log($(".content_section_text").addClass("vv").addClass("vd"));
     // console.log(vs);
     // console.log($(".validator"));
 
     // vs.hide();
 
-    console.log(ppp("se"));
+    console.log(ppp(".content_section_text").addClass("234").addClass("sbc"));
   };
-})();
-
-(function(){
-
-
-
-  // console.log(ppp("sc"));
-
 })();
