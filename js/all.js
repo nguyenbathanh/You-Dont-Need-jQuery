@@ -1,4 +1,13 @@
 (function() {
+
+  function extendC(subclass, superclass) {
+      function Dummy(){}
+      Dummy.prototype = superclass.prototype;
+      subclass.prototype = new Dummy();
+      subclass.prototype.constructor = subclass;
+      subclass.superclass = superclass;
+      subclass.superproto = superclass.prototype;
+    }
   var f, C = {};
 
   C.deepExtend = function(out) {
@@ -55,7 +64,13 @@
   };
 
   C.e = function(s){
-    return new domNode(s);
+    var sf = new domNode(s);
+
+    // extendC(person, sf);
+    // console.log(person);
+    // person.push(new domNode(s));
+    // person[0] = new domNode(s);
+    return person;
   };
 
   function isNode(o){
@@ -83,46 +98,147 @@
     // window height
     // $(window).height();
 
-    // without scrollbar, behaves like jQuery
+    // without scrollbar, behaves like ppp
     return this._element.document.documentElement.clientHeight;
     // with scrollbar
     return this._element.innerHeight;
   };
 
   f.scrollTop = function() {
-    // jQuery
+    // ppp
     // $(window).scrollTop();
 
     // Native
     return (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
   };
+  var deletedIds = [];
+
+var slice = deletedIds.slice;
+
+var concat = deletedIds.concat;
+
+var push = deletedIds.push;
+
+var indexOf = deletedIds.indexOf;
+
+var class2type = {};
+
+var toString = class2type.toString;
+
+var hasOwn = class2type.hasOwnProperty;
+
+var support = {};
 
 
-
-  function domNode(query) {
-    this._element = [];
-    if(isElement(query)){
-      this._element.push(query);
-      return this;
-    }
-    this._element = this.queryBySelector(query);
-    return this._element;
+  var ppp = function(selector){
+    return ppp.fn.init(selector);
   };
-  f = domNode.prototype;
-  f.queryBySelector = function(selector) {
-    // jQuery
-    // $('selector');
 
-    // Native
-    var a = document.querySelectorAll(selector), tr = [];
-    for(var i = 0, il = a.length; i < il; ++i){
-      tr.push(new domNode(a[i]));
-    }
-    return tr;
+  f = ppp.fn = ppp.prototype = {
+
+	// The current version of ppp being used
+	ppp: "1234",
+
+	constructor: ppp,
+
+	// Start with an empty selector
+	selector: "",
+
+	// The default length of a ppp object is 0
+	length: 0,
+
+	toArray: function() {
+		return slice.call( this );
+	},
+
+	// Get the Nth element in the matched element set OR
+	// Get the whole matched element set as a clean array
+	get: function( num ) {
+		return num != null ?
+
+			// Return just the one element from the set
+			( num < 0 ? this[ num + this.length ] : this[ num ] ) :
+
+			// Return all the elements in a clean array
+			slice.call( this );
+	},
+
+	// Take an array of elements and push it onto the stack
+	// (returning the new matched element set)
+	pushStack: function( elems ) {
+
+		// Build a new ppp matched element set
+		var ret = ppp.merge( this.constructor(), elems );
+
+		// Add the old object onto the stack (as a reference)
+		ret.prevObject = this;
+		ret.context = this.context;
+
+		// Return the newly-formed element set
+		return ret;
+	},
+
+	// Execute a callback for every element in the matched set.
+	// (You can seed the arguments with an array of args, but this is
+	// only used internally.)
+	each: function( callback, args ) {
+		return ppp.each( this, callback, args );
+	},
+
+	map: function( callback ) {
+		return this.pushStack( ppp.map(this, function( elem, i ) {
+			return callback.call( elem, i, elem );
+		}));
+	},
+
+	slice: function() {
+		return this.pushStack( slice.apply( this, arguments ) );
+	},
+
+	first: function() {
+		return this.eq( 0 );
+	},
+
+	last: function() {
+		return this.eq( -1 );
+	},
+
+	eq: function( i ) {
+		var len = this.length,
+			j = +i + ( i < 0 ? len : 0 );
+		return this.pushStack( j >= 0 && j < len ? [ this[j] ] : [] );
+	},
+
+	end: function() {
+		return this.prevObject || this.constructor(null);
+	},
+
+	// For internal use only.
+	// Behaves like an Array's method, not like a ppp method.
+	push: push,
+	sort: deletedIds.sort,
+	splice: deletedIds.splice
+};
+
+  ppp.fn.init = function(selector){
+    return this;
+  }
+  f.queryBySelector = function(selector) {
+    return document.querySelectorAll(selector);
+    // // ppp
+    // // $('selector');
+
+    // // Native
+    // var a = document.querySelectorAll(selector), tr = [];
+    // console.log(a);
+    // for(var i = 0, il = a.length; i < il; ++i){
+      // tr.push(a[i]);
+    // }
+    // return a;
   };
 
   f.queryByClass = function(cl) {
-    // jQuery
+    // ppp
     // $('.class');
 
     // Native
@@ -133,7 +249,7 @@
   };
 
   f.queryById = function(id) {
-    // jQuery
+    // ppp
     // $('#id');
 
     // Native
@@ -144,7 +260,7 @@
   };
 
   f.queryByAttribute = function(query) {
-    // jQuery
+    // ppp
     // $('a[target=_blank]');
 
     // Native
@@ -152,7 +268,7 @@
   };
 
   f.findNode = function(node) {
-    // jQuery
+    // ppp
     // $el.find('li');
 
     // Native
@@ -160,7 +276,7 @@
   };
 
   f.findBody = function() {
-    // jQuery
+    // ppp
     // $('body');
 
     // Native
@@ -168,7 +284,7 @@
   };
 
   f.getAttribute = function(attr) {
-    // jQuery
+    // ppp
     // $el.attr('foo');
 
     // Native
@@ -176,7 +292,7 @@
   };
 
   f.data = function(key) {
-    // jQuery
+    // ppp
     // $el.data('foo');
 
     // Native
@@ -186,19 +302,8 @@
     return this._element.dataset[key];
   };
 
-  f.sibling = function() {
-    // jQuery
-    // $el.siblings();
-
-    // Native
-    var self = this;
-    [].filter.call(this._element.parentNode.children, function(child) {
-      return child !== self._element;
-    });
-  };
-
   f.previous = function() {
-    // jQuery
+    // ppp
     //$el.prev();
 
     // Native
@@ -206,7 +311,7 @@
   };
 
   f.next = function() {
-    // jQuery
+    // ppp
     // $el.next();
 
     // Native
@@ -214,7 +319,7 @@
   };
 
   f.closest = function(selector) {
-    // jQuery
+    // ppp
     //$el.closest(queryString);
 
     // Native
@@ -233,7 +338,7 @@
   };
 
   f.parentsUntil = function(selector, filter) {
-    // jQuery
+    // ppp
     //$el.parentsUntil(selector, filter);
 
     const result = [];
@@ -255,14 +360,14 @@
   };
 
   f.val = function() {
-    // jQuery
+    // ppp
     // $('#my-input').val();
 
     // Native
     return this._element.value;
   };
   f.index = function() {
-    // jQuery
+    // ppp
     // $(e.currentTarget).index('.radio');
 
     // Native
@@ -270,7 +375,7 @@
   };
 
   f.contents = function() {
-    // jQuery
+    // ppp
     // $iframe.contents();
 
     // Native
@@ -278,7 +383,7 @@
   };
 
   f.findCss = function() {
-    // jQuery
+    // ppp
     // $iframe.contents().find('.css');
 
     // Native
@@ -287,7 +392,7 @@
 
   f.css = function(attr) {
     if (attr !== null && typeof attr != 'object') {
-      // jQuery
+      // ppp
       // $el.css("color");
 
       // Native
@@ -297,7 +402,7 @@
       return win.getComputedStyle(this._element, null)[attr];
     }
 
-    // jQuery
+    // ppp
     // $el.css({ color: "#ff0011" });
 
     // Native
@@ -308,7 +413,7 @@
   };
 
   f.addClass = function(className) {
-    // jQuery
+    // ppp
     // $el.addClass(className);
 
     // Native
@@ -317,7 +422,7 @@
   };
 
   f.removeClass = function(className) {
-    // jQuery
+    // ppp
     // $el.removeClass(className);
 
     // Native
@@ -326,7 +431,7 @@
   };
 
   f.hasClass = function() {
-    // jQuery
+    // ppp
     // $el.hasClass(className);
 
     // Native
@@ -337,7 +442,7 @@
   };
 
   f.toggleClass = function() {
-    // jQuery
+    // ppp
     // $el.toggleClass(className);
 
     // Native
@@ -346,7 +451,7 @@
   };
 
   f.height = function() {
-    // jQuery
+    // ppp
     // $el.height();
 
     // Native
@@ -364,7 +469,7 @@
   };
 
   f.position = function() {
-    // jQuery
+    // ppp
     // $el.position();
 
     // Native
@@ -375,7 +480,7 @@
   };
 
   f.offset = function() {
-    // jQuery
+    // ppp
     // $el.offset();
 
     // Native
@@ -390,7 +495,7 @@
   };
 
   f.remove = function() {
-    // jQuery
+    // ppp
     // $el.remove();
 
     // Native
@@ -399,13 +504,13 @@
 
   f.text = function(t) {
     if (t) {
-      // jQuery
+      // ppp
       // $el.text(string);
 
       // Native
       return this._element.textContent = t;
     }
-    // jQuery
+    // ppp
     // $el.text();
 
     // Native
@@ -414,13 +519,13 @@
 
   f.html = function(h) {
     if (h) {
-      // jQuery
+      // ppp
       //$el.html(htmlString);
 
       // Native
       return this._element.innerHTML = h;
     }
-    // jQuery
+    // ppp
     // $el.html();
 
     // Native
@@ -428,7 +533,7 @@
   };
 
   f.append = function(j) {
-    // jQuery
+    // ppp
     // $el.append("<div id='container'>hello</div>");
 
     // Native
@@ -440,7 +545,7 @@
   };
 
   f.prepend = function(j) {
-    // jQuery
+    // ppp
     // $el.prepend("<div id='container'>hello</div>");
 
     // Native
@@ -452,7 +557,7 @@
   };
 
   f.insertBefore = function(j) {
-    // jQuery
+    // ppp
     // $newEl.insertBefore(queryString);
 
     // Native
@@ -461,7 +566,7 @@
   };
 
   f.insertAfter = function(j) {
-    // jQuery
+    // ppp
     // $newEl.insertAfter(queryString);
 
     // Native
@@ -470,7 +575,7 @@
   };
 
   f.on = function(eventName, eventHandler) {
-    // jQuery
+    // ppp
     // $el.on(eventName, eventHandler);
 
     // Native
@@ -478,7 +583,7 @@
   };
 
   f.on = function(eventName, eventHandler) {
-    // jQuery
+    // ppp
     // $el.off(eventName, eventHandler);
 
     // Native
@@ -486,7 +591,7 @@
   };
 
   f.trigger = function(eventName, dt) {
-    // jQuery
+    // ppp
     // $(el).trigger('custom-event', {key1: 'data'});
 
     // Native
@@ -643,9 +748,23 @@
   };
 
   this.onload = function() {
-    var vs = C.e(".content_section_text");
+    // console.log( document.getElementsByTagName( 'div' ));
+    // var vs = C.e(".content_section_text");
+
     console.log($(".content_section_text"));
+    // console.log(vs);
+    // console.log($(".validator"));
+
     // vs.hide();
+
+    console.log(ppp("se"));
   };
 })();
 
+(function(){
+
+
+
+  // console.log(ppp("sc"));
+
+})();
