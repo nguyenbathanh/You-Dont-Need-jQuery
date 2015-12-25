@@ -71,6 +71,7 @@ var
     // console.log(this);
 		// The jQuery object is actually just the init constructor 'enhanced'
 		// Need init if jQuery is called (just allow error to be thrown if not included)
+    // console.log(selector, context)
 		return new jQuery.fn.init( selector, context );
 	},
 
@@ -120,6 +121,7 @@ jQuery.fn = jQuery.prototype = {
 	// (returning the new matched element set)
 	pushStack: function( elems ) {
 
+   // console.log(this.constructor());
 		// Build a new jQuery matched element set
 		var ret = jQuery.merge( this.constructor(), elems );
 
@@ -2735,9 +2737,14 @@ jQuery.fn.extend({
 			jQuery.find( selector, self[ i ], ret );
 		}
 
+
 		// Needed because $( selector, context ) becomes $( context ).find( selector )
-		ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
+		ret = this.pushStack(  ret );
+
+    console.log(ret);
 		ret.selector = this.selector ? this.selector + " " + selector : selector;
+    // console.log(ret);
+
 		return ret;
 	},
 	filter: function( selector ) {
@@ -2776,10 +2783,14 @@ var rootjQuery,
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
 	init = jQuery.fn.init = function( selector, context ) {
+    console.log(this);
+    // console.trace();
+    // console.log(selector, context);
 		var match, elem;
 
 		// HANDLE: $(""), $(null), $(undefined), $(false)
 		if ( !selector ) {
+      console.log(this, selector);
 			return this;
 		}
     // console.log(selector);
@@ -2799,6 +2810,7 @@ var rootjQuery,
 
 				// HANDLE: $(html) -> $(array)
 				if ( match[1] ) {
+
 					context = context instanceof jQuery ? context[0] : context;
 
 					// scripts is true for back-compat
@@ -2823,10 +2835,12 @@ var rootjQuery,
 						}
 					}
 
+
 					return this;
 
 				// HANDLE: $(#id)
 				} else {
+
 					elem = document.getElementById( match[2] );
 
 					// Check parentNode to catch when Blackberry 4.6 returns
@@ -2843,13 +2857,16 @@ var rootjQuery,
 						this[0] = elem;
 					}
 
+
 					this.context = document;
 					this.selector = selector;
 					return this;
 				}
 
+
 			// HANDLE: $(expr, $(...))
 			} else if ( !context || context.jquery ) {
+        console.log("run here");
 				return ( context || rootjQuery ).find( selector );
 
 			// HANDLE: $(expr, context)
@@ -2862,6 +2879,7 @@ var rootjQuery,
 
 		// HANDLE: $(DOMElement)
 		} else if ( selector.nodeType ) {
+      // console.log("run here");
 			this.context = this[0] = selector;
 			this.length = 1;
 			return this;
@@ -2869,6 +2887,7 @@ var rootjQuery,
 		// HANDLE: $(function)
 		// Shortcut for document ready
 		} else if ( jQuery.isFunction( selector ) ) {
+      // console.log(selector);
 			return typeof rootjQuery.ready !== "undefined" ?
 
 				rootjQuery.ready( selector ) :
