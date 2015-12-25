@@ -5782,8 +5782,10 @@ jQuery.fn.extend({
 	append: function() {
 		return this.domManip( arguments, function( elem ) {
 			if ( this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9 ) {
+        console.log(this, elem);
 				var target = manipulationTarget( this, elem );
 				target.appendChild( elem );
+        console.log(target, elem);
 			}
 		});
 	},
@@ -5963,6 +5965,7 @@ jQuery.fn.extend({
 		if ( l ) {
 			fragment = jQuery.buildFragment( args, this[ 0 ].ownerDocument, false, this );
 			first = fragment.firstChild;
+      console.log(fragment,first);
 
 			if ( fragment.childNodes.length === 1 ) {
 				fragment = first;

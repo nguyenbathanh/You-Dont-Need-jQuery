@@ -55,6 +55,22 @@
     return (typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
       o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName === "string");
   };
+  C.g = function(a, b, c) {
+    if (!a) {
+      throw Error();
+    }
+    if (2 < arguments.length) {
+      var d = Array.prototype.slice.call(arguments, 2);
+      return function() {
+        var c = Array.prototype.slice.call(arguments);
+        Array.prototype.unshift.apply(c, d);
+        return a.apply(b, c);
+      };
+    }
+    return function() {
+      return a.apply(b, arguments);
+    };
+  };
   var deletedIds = [],
     slice = deletedIds.slice,
     concat = deletedIds.concat,
@@ -354,18 +370,20 @@
     this._element.classList.remove(className);
     return this;
   };
-  f.hasClass = function() {
+  f.hasClass = function(className) {
     // ppp
     // $el.hasClass(className);
     // Native
-    if (el.classList) return this._element.classList.contains(className);
-    else return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+    if (this[0].classList){
+      return this[0].classList.contains(className);
+    }
+    return new RegExp('(^| )' + className + '( |$)', 'gi').test(this[0].className);
   };
   f.toggleClass = function() {
     // ppp
     // $el.toggleClass(className);
     // Native
-    this._element.classList.toggle(className);
+    this[0].classList.toggle(className);
     return this;
   };
   f.height = function() {
@@ -434,17 +452,43 @@
     // ppp
     // $el.html();
     // Native
-    return this._element.innerHTML;
+    return this[0].innerHTML;
   };
-  f.append = function(j) {
+  f.append = function() {
+    this._bn(arguments, function(a){
+      console.log(this, a);
+      var gg = document.createDocumentFragment();
+      gg.appendChild(a);
+      this.appendChild(gg);
+    });
     // ppp
     // $el.append("<div id='container'>hello</div>");
     // Native
     // let newEl = document.createElement('div');
     // newEl.setAttribute('id', 'container');
     // newEl.innerHTML = 'hello';
-    this._element.appendChild(j);
+    //this._element.appendChild(j);
     return this;
+  };
+  f._bn = function(j, callback){
+    var self = this;
+
+    for(var i = 0, il = j.length; i< il;++i){
+      for(var a = 0, al = this.length; a< al; ++a){
+        (function(a, j){
+          callback.call(a, self.__bn(j));
+        })(this[a], j[i]);
+      }
+    }
+
+    // return callback.call(this[0], j[0]);
+    return this;
+  };
+  f.__bn = function(b){
+    if(b instanceof ppp){
+      return b[0];
+    }
+    return document.createTextNode(b);
   };
   f.prepend = function(j) {
     // ppp
@@ -605,7 +649,9 @@
     // console.log(vs);
     // vs.hide();
     //console.log(ppp(".content_section_text").css({"background": "red"}));
-    console.log(ppp(".content_section_text").html("absc"));
-    //console.log($(".section_header_red").next());
+    // console.log(ppp(".content_section_text").html("absc"));
+    // console.log($(".section_header_red").append( "24234234233333333" ));
+    // console.log($(".section_header_red").append( "24234234233333333" ));
+    console.log(ppp(".section_header").append(ppp("#validator")));
   };
 })();
