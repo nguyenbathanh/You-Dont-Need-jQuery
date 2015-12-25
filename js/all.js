@@ -1,5 +1,22 @@
 (function() {
 
+  function isArraylike(obj) {
+
+    var length = "length" in obj && obj.length,
+      type = jQuery.type(obj);
+
+    if (type === "function" || jQuery.isWindow(obj)) {
+      return false;
+    }
+
+    if (obj.nodeType === 1 && length) {
+      return true;
+    }
+
+    return type === "array" || length === 0 ||
+      typeof length === "number" && length > 0 && (length - 1) in obj;
+  }
+
   function extendC(subclass, superclass) {
     function Dummy() {}
     Dummy.prototype = superclass.prototype;
@@ -67,233 +84,199 @@
     return ppp(s);
   };
 
-  function isNode(o) {
+  C.isNode = function(o) {
     return (
       typeof Node === "object" ? o instanceof Node :
       o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName === "string"
     );
-  }
+  };
 
-  //Returns true if it is a DOM element
-  function isElement(o) {
+  C.isElement = function(o) {
     return (
       typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
       o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName === "string"
     );
-  }
-
-  function domNodeWindow(w) {
-    this._element = window;
-    return this;
   };
 
-  f = domNodeWindow.prototype;
-  f.height = function() {
-    // window height
-    // $(window).height();
-
-    // without scrollbar, behaves like ppp
-    return this._element.document.documentElement.clientHeight;
-    // with scrollbar
-    return this._element.innerHeight;
-  };
-
-  f.scrollTop = function() {
-    // ppp
-    // $(window).scrollTop();
-
-    // Native
-    return (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
-  };
-  var deletedIds = [];
-
-  var slice = deletedIds.slice;
-
-  var concat = deletedIds.concat;
-
-  var push = deletedIds.push;
-
-  var indexOf = deletedIds.indexOf;
-
-  var class2type = {};
-
-  var toString = class2type.toString;
-
-  var hasOwn = class2type.hasOwnProperty;
-
-  var support = {};
-
-  var ppp = function(selector) {
-    return ppp.pp.init(selector);
+  var deletedIds = [],
+  slice = deletedIds.slice,
+  concat = deletedIds.concat,
+  push = deletedIds.push,
+ indexOf = deletedIds.indexOf,
+class2type = {},
+ toString = class2type.toString,
+ hasOwn = class2type.hasOwnProperty,
+ support = {},
+ rootjQuery,
+  ppp = function(selector, context) {
+    return new ppp.pp.init(selector, context);
   };
 
   f = ppp.pp = ppp.prototype = {
 
-    // The current version of ppp being used
-    ppp: "1234",
+    ppp: "1",
 
     constructor: ppp,
 
-    // Start with an empty selector
     selector: "",
 
-    // The default length of a ppp object is 0
     length: 0,
 
     toArray: function() {
       return slice.call(this);
     },
 
-    // Get the Nth element in the matched element set OR
-    // Get the whole matched element set as a clean array
-    get: function(num) {
-      return num != null ?
-
-        // Return just the one element from the set
-        (num < 0 ? this[num + this.length] : this[num]) :
-
-        // Return all the elements in a clean array
-        slice.call(this);
-    },
-
-    // Take an array of elements and push it onto the stack
-    // (returning the new matched element set)
     pushStack: function(elems) {
 
-      // Build a new ppp matched element set
-      var ret = $.merge(this.constructor(), elems);
+      // console.log(this.constructor());
+      var ret = this.merge(this.constructor(), elems);
 
-      // Add the old object onto the stack (as a reference)
       ret.prevObject = this;
       ret.context = this.context;
 
-      // Return the newly-formed element set
       return ret;
     },
+    merge: function(first, second) {
+      var len = +second.length,
+        j = 0,
+        i = first.length;
 
-    // Execute a callback for every element in the matched set.
-    // (You can seed the arguments with an array of args, but this is
-    // only used internally.)
-    each: function(callback, args) {
-      return ppp.each(this, callback, args);
+      while (j < len) {
+        first[i++] = second[j++];
+      }
+
+      if (len !== len) {
+        while (second[j] !== undefined) {
+          first[i++] = second[j++];
+        }
+      }
+
+      first.length = i;
+
+      return first;
     },
-
-    map: function(callback) {
-      return this.pushStack(ppp.map(this, function(elem, i) {
-        return callback.call(elem, i, elem);
-      }));
-    },
-
     slice: function() {
       return this.pushStack(slice.apply(this, arguments));
     },
 
-    first: function() {
-      return this.eq(0);
-    },
-
-    last: function() {
-      return this.eq(-1);
-    },
-
-    eq: function(i) {
-      var len = this.length,
-        j = +i + (i < 0 ? len : 0);
-      return this.pushStack(j >= 0 && j < len ? [this[j]] : []);
-    },
-
-    end: function() {
-      return this.prevObject || this.constructor(null);
-    },
-
-    // For internal use only.
-    // Behaves like an Array's method, not like a ppp method.
     push: push,
     sort: deletedIds.sort,
     splice: deletedIds.splice
   };
 
-  ppp.pp.init = function(selector, context) {
-    var match, elem;
+  var document = window.document;
+  var init = ppp.pp.init = function(selector, context) {
 
-		// HANDLE: $(""), $(null), $(undefined), $(false)
-		if ( !selector ) {
-			return this;
-		}
+    if (!selector) {
+      return this;
+    }
+    // console.log(selector);
 
-		// Handle HTML strings
-		if ( typeof selector === "string" ) {
-			if ( !context || context.ppp ) {
-				return ( context || rootjQuery ).find( selector );
+    if (typeof selector == "string") {
+      if (!context || context.ppp) {
+        return (context || rootjQuery).find(selector);
 
-			// HANDLE: $(expr, context)
-			// (which is just equivalent to: $(context).find(expr)
-			} else {
-
-				return this.constructor( context ).find( selector );
-			}
+      } else {
+        return this.constructor(context).find(selector);
+      }
 
 
-		// HANDLE: $(DOMElement)
-		} else if ( selector.nodeType ) {
-			this.context = this[0] = selector;
-			this.length = 1;
-			return this;
+    } else if (selector.nodeType) {
+      // console.log("run here");
+      this.context = this[0] = selector;
+      this.length = 1;
+      return this;
 
-		// HANDLE: $(function)
-		// Shortcut for document ready
-		} else if ( jQuery.isFunction( selector ) ) {
-			return typeof rootjQuery.ready !== "undefined" ?
+    }
 
-				rootjQuery.ready( selector ) :
-				// Execute immediately if ready is not present
-				selector( ppp );
-		}
+    if (selector.selector !== undefined) {
+      this.selector = selector.selector;
+      this.context = selector.context;
+    }
 
-		if ( selector.selector !== undefined ) {
-			this.selector = selector.selector;
-			this.context = selector.context;
-		}
-
-		return this.makeArray( selector, this );
+    // return jQuery.makeArray(selector, this);
   };
 
+  init.prototype = ppp.pp;
 
-  var rootjQuery = ppp( document );
+  rootjQuery = ppp(document);
 
+  f = ppp.prototype;
   f.find = function(selector) {
     var i,
-			ret = [],
-			self = this,
-			len = self.length;
+      ret = [],
+      self = this,
+      len = self.length;
 
-		if ( typeof selector !== "string" ) {
-			return this.pushStack( ppp( selector ).filter(function() {
-				for ( i = 0; i < len; i++ ) {
-					if ( ppp.contains( self[ i ], this ) ) {
-						return true;
-					}
-				}
-			}) );
-		}
+    if (typeof selector !== "string") {
+      return this.pushStack(ppp(selector).filter(function() {
+        for (i = 0; i < len; i++) {
+          if (ppp.contains(self[i], this)) {
+            return true;
+          }
+        }
+      }));
+    }
 
-		for ( i = 0; i < len; i++ ) {
+    function NLtoArray(nl) {
+      for (var a = [], l = nl.length; l--; a[l] = nl[l]);
+      return a;
+    }
+
+    // http://ryanmorr.com/abstract-away-the-performance-faults-of-queryselectorall/
+    function query(selector, doc) {
+      'use strict';
+
+      var doc = document,
+        simpleRe = /^(#?[\w-]+|\.[\w-.]+)$/,
+        periodRe = /\./g,
+        slice = [].slice,
+        classes;
+
+      return function(selector, context) {
+        context = context || doc;
+        // Redirect simple selectors to the more performant function
+        if (simpleRe.test(selector)) {
+          switch (selector.charAt(0)) {
+            case '#':
+              // Handle ID-based selectors
+              return [context.getElementById(selector.substr(1))];
+            case '.':
+              // Handle class-based selectors
+              // Query by multiple classes by converting the selector
+              // string into single spaced class names
+              classes = selector.substr(1).replace(periodRe, ' ');
+              return slice.call(context.getElementsByClassName(classes));
+            default:
+              // Handle tag-based selectors
+              return slice.call(context.getElementsByTagName(selector));
+          }
+        }
+        // Default to `querySelectorAll`
+        return slice.call(context.querySelectorAll(selector));
+      }(selector, doc);
+    };
+
+    for (i = 0; i < len; i++) {
       // console.log(selector);
-			ret = document.querySelectorAll(selector);
-		}
+      // console.log(self[ i ]);
+      //ret = document.getElementsByClassName(selector);
+      // console.log(self[i].querySelectorAll( selector ));
+      ret = NLtoArray(query(selector));
+      // console.log(ret);
+    }
 
-		// Needed because $( selector, context ) becomes $( context ).find( selector )
-		ret = this.pushStack( len > 1 ? jQuery.unique( ret ) : ret );
-		ret.selector = this.selector ? this.selector + " " + selector : selector;
-		return ret;
+    ret = this.pushStack(ret);
+    ret.selector = this.selector ? this.selector + " " + selector : selector;
+    return ret;
 
 
-     // var a = document.querySelectorAll(selector),
-        // tr;
-      // for (var i = 0, il = a.length; i < il; ++i) {
-        // tr = this.pushStack(a);
-      // }
-      // return tr;
+    // var a = document.querySelectorAll(selector),
+    // tr;
+    // for (var i = 0, il = a.length; i < il; ++i) {
+    // tr = this.pushStack(a);
+    // }
+    // return tr;
   };
 
   f.queryByClass = function(cl) {
@@ -465,14 +448,16 @@
     // $el.css({ color: "#ff0011" });
 
     // Native
-    for (var i = 0, il = attr.length; i < il; ++i) {
-      el.style[i] = attr[i];
+    for (var i in attr) {
+      for(var j = 0; il = this.length; ++j){
+        this[j].style[i] = attr[i];
+      }
     }
     return this;
   };
 
   f.addClass = function(className) {
-    console.log(this);
+    // console.log(this);
     for (var i = 0, il = this.length; i < il; ++i) {
       this[i].classList.add(className);
     }
@@ -736,7 +721,7 @@
   };
 
   // f.find = function(selector) {
-    // return this._element.querySelectorAll(selector);
+  // return this._element.querySelectorAll(selector);
   // };
 
   f.outerHTML = function() {
@@ -804,32 +789,29 @@
     }
   };
 
-  f.makeArray = function( arr, results ) {
-		var ret = results || [];
-		if ( arr != null ) {
-			if ( isArraylike( Object(arr) ) ) {
-				ppp.merge( ret,
-					typeof arr === "string" ?
-					[ arr ] : arr
-				);
-			} else {
-				push.call( ret, arr );
-			}
-		}
+  f.makeArray = function(arr, results) {
+      var ret = results || [];
+      if (arr != null) {
+        if (isArraylike(Object(arr))) {
+          this.merge(ret,
+            typeof arr === "string" ? [arr] : arr
+          );
+        } else {
+          push.call(ret, arr);
+        }
+      }
 
-		return ret;
-	},
+      return ret;
+    },
 
-  this.onload = function() {
-    // console.log( document.getElementsByTagName( 'div' ));
-    // var vs = C.e(".content_section_text");
+    this.onload = function() {
+      // console.log( document.getElementsByTagName( 'div' ));
+      // var vs = C.e(".content_section_text");
 
-    console.log($(".content_section_text").addClass("vv").addClass("vd"));
-    // console.log(vs);
-    // console.log($(".validator"));
+      // console.log(vs);
 
-    // vs.hide();
+      // vs.hide();
 
-    console.log(ppp(".content_section_text").addClass("234").addClass("sbc"));
-  };
+      console.log(ppp(".content_section_text").css({"background": "red"}));
+    };
 })();
